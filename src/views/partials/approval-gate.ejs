@@ -1,0 +1,40 @@
+<div id="approval-gate-panel" hx-swap-oob="outerMorph">
+  <% if (state.status === 'AWAITING_APPROVAL' && state.pendingGate) { %>
+    <div class="modal-overlay">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <h3><%= state.pendingGate.title %></h3>
+          </div>
+          <span class="risk-tag risk-<%= state.pendingGate.riskLevel.toLowerCase() %> font-mono">
+            <%= state.pendingGate.riskLevel %> RISK
+          </span>
+        </div>
+
+        <div class="modal-body">
+          <p class="action-prompt">A critical execution step requires administrative approval:</p>
+          <div class="action-highlight-box"><%= state.pendingGate.actionName %></div>
+
+          <% if (state.pendingGate.diff) { %>
+            <pre class="code-diff-container font-mono"><%= state.pendingGate.diff %></pre>
+          <% } %>
+        </div>
+
+        <div class="modal-footer">
+          <form hx-post="/api/mission/approve" hx-disabled-elt="find button">
+            <input type="hidden" name="action" value="reject">
+            <button type="submit" class="btn btn-secondary">
+              Reject Step
+            </button>
+          </form>
+          <form hx-post="/api/mission/approve" hx-disabled-elt="find button">
+            <input type="hidden" name="action" value="approve">
+            <button type="submit" class="btn btn-primary">
+              Approve & Continue
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>

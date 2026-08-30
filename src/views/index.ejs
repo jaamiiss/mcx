@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Operations Console</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- HTMX 4 Core & SSE Extension -->
+  <script src="/js/htmx.min.js"></script>
+  <script src="/js/hx-sse.min.js"></script>
+  <script>
+    // Enable Native View Transitions in HTMX 4
+    htmx.config.globalViewTransitions = true;
+  </script>
+</head>
+<body hx-sse:connect="/api/mission/stream"
+      hx-on:htmx:sse:after:connection="document.getElementById('sse-status-label').textContent = 'Stream Connected'; document.getElementById('sse-indicator').className = 'status-indicator status-online';"
+      hx-on:htmx:sse:error="document.getElementById('sse-status-label').textContent = 'Reconnecting...'; document.getElementById('sse-indicator').className = 'status-indicator status-reconnecting';"
+      hx-on:htmx:sse:close="document.getElementById('sse-status-label').textContent = 'Disconnected'; document.getElementById('sse-indicator').className = 'status-indicator status-offline';">
+
+  <!-- Top App Navigation (Shadcn Style) -->
+  <header class="app-header">
+    <div class="brand">
+      <img src="/favicon.svg" alt="App Logo" width="20" height="20" class="brand-icon-img">
+      <span class="brand-title">Operations Console</span>
+    </div>
+    
+    <div class="header-meta">
+      <div class="status-pill" id="sse-status-pill">
+        <span class="status-indicator status-online" id="sse-indicator"></span>
+        <span id="sse-status-label">Stream Connected</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Layout -->
+  <div class="dashboard-layout">
+    
+    <!-- LEFT COLUMN: Workflow Configuration -->
+    <aside class="panel operations-column">
+      <div class="panel-header">
+        <h2 class="panel-title">Pipeline Configuration</h2>
+      </div>
+
+      <form id="launch-form" hx-post="/api/mission/start" hx-disabled-elt="find button, find select">
+        <div class="form-section">
+          <label class="form-label">Workflow Preset</label>
+          <div class="scenario-list">
+            <% scenarios.forEach((s, idx) => { %>
+              <label class="scenario-option">
+                <input type="radio" class="scenario-radio" name="scenarioId" value="<%= s.id %>" <%= idx === 0 ? 'checked' : '' %>>
+                <div class="scenario-card">
+                  <div class="scenario-card-header">
+                    <span class="scenario-card-title"><%= s.title %></span>
+                    <span class="scenario-tag font-mono"><%= s.category %></span>
+                  </div>
+                  <p class="scenario-card-desc"><%= s.description %></p>
+                </div>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Execution Policy</label>
+            <select name="autonomy" class="form-control" title="Execution Policy">
+              <option value="human_gate">Gate Approval</option>
+              <option value="full_auto">Full Auto</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label">Execution Speed</label>
+            <select name="speed" class="form-control font-mono" title="Execution Speed">
+              <option value="1.0">1.0x Normal</option>
+              <option value="1.5">1.5x Fast</option>
+              <option value="2.0">2.0x Max</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Trigger Workflow Run
+        </button>
+      </form>
+
+      <div class="architecture-note">
+        <div class="note-title">Architecture</div>
+        <ul class="note-list">
+          <li>• <strong>innerMorph & outerMorph</strong>: Zero-flicker AST diffing</li>
+          <li>• <strong>hx-sse:connect</strong>: Automatic SSE fragment streams</li>
+          <li>• <strong>View Transitions</strong>: Native CSS state transitions</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- CENTER COLUMN: Status, Logs & Output -->
+    <main class="panel main-column">
+      <!-- Status Header -->
+      <%- include('partials/mission-status', { state, scenarios }) %>
+
+      <!-- Real-time Activity Log (innerMorph) -->
+      <div class="activity-section">
+        <div class="section-subhead">
+          <h3>Execution Log Stream</h3>
+          <span class="morph-pill font-mono">innerMorph</span>
+        </div>
+        
+        <%- include('partials/reasoning-feed', { state, scenarios }) %>
+      </div>
+
+      <!-- Completed Report Artifact -->
+      <%- include('partials/artifact-view', { state, scenarios }) %>
+    </main>
+
+    <!-- RIGHT COLUMN: Sub-tasks Matrix -->
+    <aside class="panel tasks-column">
+      <div class="panel-header">
+        <h2 class="panel-title">Task Pipeline</h2>
+        <span class="stat-value font-mono"><%= state.tasks.length %> Steps</span>
+      </div>
+
+      <%- include('partials/task-board', { state, scenarios }) %>
+    </aside>
+
+  </div>
+
+  <!-- Human-in-the-Loop Modal -->
+  <%- include('partials/approval-gate', { state, scenarios }) %>
+
+</body>
+</html>

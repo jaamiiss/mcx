@@ -1,0 +1,17 @@
+<div id="task-board-panel" class="task-list" hx-swap-oob="outerMorph">
+  <% if (state.tasks.length === 0) { %>
+    <div class="empty-state">
+      <p class="text-muted">No scheduled tasks.</p>
+    </div>
+  <% } else { %>
+    <% state.tasks.forEach(task => { %>
+      <div class="task-item task-item-<%= task.status.toLowerCase() %>" id="task-<%= task.id %>">
+        <div class="task-item-head">
+          <span class="task-tool-name font-mono"><%= task.tool %></span>
+          <span class="task-status-pill status-pill-<%= task.status.toLowerCase() %>"><%= task.status.replace('_', ' ') %></span>
+        </div>
+        <div class="task-title"><%= task.name %></div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>

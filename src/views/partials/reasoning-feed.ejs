@@ -1,0 +1,18 @@
+<div id="reasoning-feed-panel" class="log-container" hx-swap-oob="innerMorph">
+  <% if (state.thoughts.length === 0) { %>
+    <div class="empty-state">
+      <p>Pipeline stream idle. Select a preset and trigger a workflow run.</p>
+    </div>
+  <% } else { %>
+    <div class="log-list">
+      <% state.thoughts.forEach((thought, idx) => { %>
+        <div class="log-item" id="<%= thought.id %>">
+          <span class="log-timestamp font-mono"><%= thought.timestamp %></span>
+          <div class="log-content">
+            <%= thought.text %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

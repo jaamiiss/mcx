@@ -1,0 +1,28 @@
+{
+  "name": "mcx",
+  "version": "1.0.0",
+  "description": "Autonomous AI Mission Control & Operations Console powered by HTMX 4 (innerMorph, outerMorph, SSE streaming, View Transitions & interactive human-in-the-loop gates)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "htmx",
+    "htmx4",
+    "ai",
+    "mission-control",
+    "operations-console",
+    "innerMorph",
+    "outerMorph",
+    "sse",
+    "view-transitions"
+  ],
+  "author": "jaamiiss <fridaysyckness@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.0.0",
+    "htmx.org": "^4.0.0"
+  }
+}

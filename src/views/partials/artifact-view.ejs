@@ -1,0 +1,47 @@
+<div id="artifact-view-panel" hx-swap-oob="outerMorph">
+  <% if (state.artifact) { %>
+    <%
+      function formatArtifact(md) {
+        if (!md) return '';
+        // Split on \n or on list/header markdown boundaries even if newlines were collapsed
+        const raw = md.replace(/\s*-\s*\*\*/g, '\n- **').replace(/\s*###\s*/g, '\n### ');
+        const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        let html = '';
+        let inList = false;
+
+        function formatInline(str) {
+          return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`([^`]+)`/g, '<code class="artifact-code font-mono">$1</code>');
+        }
+
+        for (const line of lines) {
+          if (line.startsWith('### ')) {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<h4 class="artifact-heading">${formatInline(line.slice(4))}</h4>`;
+          } else if (line.startsWith('- ')) {
+            if (!inList) { html += '<ul class="artifact-list">'; inList = true; }
+            html += `<li class="artifact-list-item">${formatInline(line.slice(2))}</li>`;
+          } else {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<p class="artifact-paragraph">${formatInline(line)}</p>`;
+          }
+        }
+        if (inList) html += '</ul>';
+        return html;
+      }
+    %>
+    <div class="artifact-box">
+      <div class="artifact-head">
+        <span class="artifact-title"><%= state.artifact.title %></span>
+        <span class="state-badge state-completed">COMPLETED</span>
+      </div>
+      <div class="artifact-body">
+        <%- formatArtifact(state.artifact.markdown) %>
+      </div>
+    </div>
+  <% } %>
+</div>

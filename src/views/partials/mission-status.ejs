@@ -1,0 +1,51 @@
+<div id="mission-status-panel" class="status-bar" hx-swap-oob="outerMorph">
+  <div class="status-left">
+    <span class="state-badge state-<%= state.status.toLowerCase() %>">
+      <%= state.status.replace('_', ' ') %>
+    </span>
+    <% if (state.scenario) { %>
+      <span class="current-scenario-name"><%= state.scenario.title %></span>
+    <% } else { %>
+      <span class="current-scenario-name text-muted">No active workflow</span>
+    <% } %>
+  </div>
+
+  <div class="status-right">
+    <div class="status-stats">
+      <div class="stat-group">
+        <span class="stat-label">Speed:</span>
+        <span class="stat-value font-mono"><%= state.speedMultiplier %>x</span>
+      </div>
+      <div class="stat-group">
+        <span class="stat-label">Completed:</span>
+        <span class="stat-value font-mono">
+          <%= state.tasks.filter(t => t.status === 'SUCCESS').length %> / <%= state.tasks.length %>
+        </span>
+      </div>
+    </div>
+
+    <% if (state.status === 'RUNNING' || state.status === 'PAUSED' || state.status === 'COMPLETED' || state.status === 'ABORTED') { %>
+      <div class="status-actions">
+        <% if (state.status === 'RUNNING') { %>
+          <button class="btn btn-secondary btn-sm" hx-post="/api/mission/pause" hx-disabled-elt="this">
+            Pause
+          </button>
+          <button class="btn btn-danger btn-sm" hx-post="/api/mission/abort" hx-disabled-elt="this">
+            Abort
+          </button>
+        <% } else if (state.status === 'PAUSED') { %>
+          <button class="btn btn-success btn-sm" hx-post="/api/mission/resume" hx-disabled-elt="this">
+            Resume
+          </button>
+          <button class="btn btn-danger btn-sm" hx-post="/api/mission/abort" hx-disabled-elt="this">
+            Abort
+          </button>
+        <% } else if (state.status === 'COMPLETED' || state.status === 'ABORTED') { %>
+          <button class="btn btn-secondary btn-sm" hx-post="/api/mission/reset" hx-disabled-elt="this">
+            Reset
+          </button>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
